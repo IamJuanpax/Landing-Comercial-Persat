@@ -1,48 +1,54 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import PortalAutomatizaciones from '@/app/components/PortalAutomatizaciones';
-import { getSupabaseServerClient } from '@/lib/supabase';
-import {
-  rowToConsulta,
-  type Consulta,
-  type ConsultaRow,
-} from '@/types/consulta';
+import type { Consulta } from '@/types/consulta';
 
-export const dynamic = 'force-dynamic';
+export default function HomePage() {
+  const [consultas, setConsultas] = useState<Consulta[]>([]);
+  const [configured, setConfigured] = useState<boolean>(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-export default async function HomePage() {
-  const supabase = getSupabaseServerClient();
+  useEffect(() => {
+    let isMounted = true;
 
-  if (!supabase) {
-    return (
-      <PortalAutomatizaciones
-        initialConsultas={[]}
-        initialConfigured={false}
-      />
-    );
-  }
+    async function loadData() {
+      try {
+        const res = await fetch('/api/consultas', { cache: 'no-store' });
+        const data = await res.json();
 
-  const { data, error } = await supabase
-    .from('consultas')
-    .select('*')
-    .order('creado_en', { ascending: false });
+        if (!isMounted) return;
 
-  if (error) {
-    return (
-      <PortalAutomatizaciones
-        initialConsultas={[]}
-        initialConfigured={true}
-        initialError={error.message}
-      />
-    );
-  }
+        if (!res.ok) {
+          if (data.configured === false) {
+            setConfigured(false);
+          } else {
+            setErrorMsg(data.error || 'Error al obtener consultas');
+          }
+          return;
+        }
 
-  const initialConsultas: Consulta[] = ((data ?? []) as ConsultaRow[]).map(
-    rowToConsulta
-  );
+        setConsultas(data.consultas || []);
+        setConfigured(true);
+        setErrorMsg(null);
+      } catch (err) {
+        if (!isMounted) return;
+        setErrorMsg(err instanceof Error ? err.message : 'Error al conectar con la API');
+      }
+    }
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <PortalAutomatizaciones
-      initialConsultas={initialConsultas}
-      initialConfigured={true}
+      initialConsultas={consultas}
+      initialConfigured={configured}
+      initialError={errorMsg}
     />
   );
 }

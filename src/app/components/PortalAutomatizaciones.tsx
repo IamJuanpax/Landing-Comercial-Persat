@@ -169,10 +169,14 @@ export default function PortalAutomatizaciones({
 
   const counts = useMemo(() => {
     const c = { tecnicos: 0, vendedores: 0, logistica: 0 };
-    for (const item of items) {
-      c[item.vertical]++;
+    if (Array.isArray(items)) {
+      for (const item of items) {
+        if (item && item.vertical && c[item.vertical] !== undefined) {
+          c[item.vertical]++;
+        }
+      }
     }
-    return { total: items.length, ...c };
+    return { total: Array.isArray(items) ? items.length : 0, ...c };
   }, [items]);
 
   const filteredItems = useMemo(() => {
@@ -840,7 +844,7 @@ export default function PortalAutomatizaciones({
             <div className="filters">
               <input
                 type="text"
-                placeholder="Buscar en consultas…"
+                placeholder="Buscar en consultas… (ej. chofer, HubSpot)"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -868,6 +872,31 @@ export default function PortalAutomatizaciones({
                   </option>
                 ))}
               </select>
+              {(search || filtroEstado || filtroAutor || filtroVertical !== 'todas') && (
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => {
+                    setSearch('');
+                    setFiltroEstado('');
+                    setFiltroAutor('');
+                    setFiltroVertical('todas');
+                  }}
+                  title="Limpiar filtros"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                  Limpiar
+                </button>
+              )}
             </div>
           </div>
 

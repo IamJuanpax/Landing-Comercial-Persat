@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal de Automatizaciones · Comercial Persat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#5658D2; --primary-dark:#3A37BB; --primary-soft:#F3F3FC; --primary-soft-2:#E1E2F7;
+    --orange:#F28300; --orange-soft:#FFF3E2;
+    --text:#414141; --text-2:#6B6B6B; --text-3:#9A9A9A;
+    --border:#E4E4EA; --surface:#FFFFFF; --bg:#FAFAFD;
+    --success:#2AA700; --warning:#B57000; --error:#B12525; --info:#484BCE;
+    --radius:12px;
+    --primary-hover:#3A37BB; --chip:#F2F2F5; --ctx-border:#F7DDB8; --toast:#414141;
+    color-scheme:light;
+  }
+  :root[data-theme="dark"]{
+    --primary:#6B6DE0; --primary-dark:#B9BAF5; --primary-soft:#22234A; --primary-soft-2:#34356E;
+    --orange:#F28300; --orange-soft:#33261A;
+    --text:#E6E6EE; --text-2:#A8A8B8; --text-3:#7B7B8C;
+    --border:#2D2D3A; --surface:#1B1B24; --bg:#121218;
+    --success:#5CC63A; --warning:#F2A847; --error:#E06060; --info:#9C9EF0;
+    --primary-hover:#5658D2; --chip:#262632; --ctx-border:#4A3620; --toast:#2E2E3C;
+    color-scheme:dark;
+  }
+  body,.panel,.card,.stat,input,select,textarea,.btn,.tab{transition:background-color .2s,border-color .2s,color .2s}
+  .theme-btn .i-sun{display:none}
+  :root[data-theme="dark"] .theme-btn .i-sun{display:block}
+  :root[data-theme="dark"] .theme-btn .i-moon{display:none}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Montserrat',Arial,sans-serif;color:var(--text);background:var(--bg);font-size:16px;line-height:1.5}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+  button,input,select,textarea{font-family:inherit;font-size:15px;color:var(--text)}
+
+  /* Header */
+  header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--primary-dark);font-size:18px}
+  .brand-mark{width:32px;height:32px;border-radius:10px;background:var(--primary);display:grid;place-items:center}
+  .brand-mark span{width:12px;height:12px;border-radius:50%;background:var(--orange)}
+  .brand small{display:block;font-weight:400;color:var(--text-2);font-size:12px}
+  .top-actions{display:flex;gap:8px}
+
+  /* Hero */
+  .hero{padding:48px 0 32px}
+  .hero-card{background:linear-gradient(135deg,var(--primary-soft) 0%,var(--surface) 60%,var(--orange-soft) 100%);border:1px solid var(--primary-soft-2);border-radius:20px;padding:40px 32px;position:relative;overflow:hidden}
+  .eyebrow{display:inline-block;background:var(--orange-soft);color:var(--warning);font-weight:600;font-size:12px;padding:4px 12px;border-radius:999px;letter-spacing:.04em;text-transform:uppercase}
+  .hero h1{font-size:40px;line-height:1.15;font-weight:600;color:var(--primary-dark);margin:16px 0 12px;max-width:720px}
+  .hero h1 em{font-style:normal;color:var(--orange)}
+  .hero p{font-size:18px;color:var(--text-2);margin:0;max-width:680px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+  .stat b{display:block;font-size:28px;font-weight:700;color:var(--primary-dark)}
+  .stat span{font-size:13px;color:var(--text-2)}
+
+  /* Layout */
+  .grid{display:grid;grid-template-columns:400px 1fr;gap:32px;align-items:start;padding-bottom:64px}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+  .panel h2{font-size:20px;font-weight:600;color:var(--primary-dark);margin:0 0 4px}
+  .panel .sub{font-size:14px;color:var(--text-2);margin:0 0 20px}
+  .sticky{position:sticky;top:16px}
+
+  /* Form */
+  label.f{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
+  label.f .req{color:var(--orange)}
+  .hint{font-size:12px;color:var(--text-3);font-weight:400}
+  .field{margin-bottom:18px}
+  input[type=text],select,textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--surface);outline:none;transition:border .15s,box-shadow .15s}
+  textarea{resize:vertical;min-height:84px}
+  input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft-2)}
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg label{display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:12px 6px;cursor:pointer;font-size:13px;font-weight:600;text-align:center;transition:all .15s}
+  .seg label svg{width:22px;height:22px;stroke:var(--text-2)}
+  .seg input:checked + label{border-color:var(--primary);background:var(--primary-soft);color:var(--primary-dark)}
+  .seg input:checked + label svg{stroke:var(--primary)}
+  .seg input:focus-visible + label{box-shadow:0 0 0 3px var(--primary-soft-2)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .btn{border:1px solid transparent;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .15s;white-space:nowrap}
+  .btn svg{width:16px;height:16px}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-hover)}
+  .btn-ghost{background:var(--surface);border-color:var(--border);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--primary);color:var(--primary-dark)}
+  .btn-block{width:100%;justify-content:center;padding:12px}
+  .form-actions{display:flex;gap:8px}
+  .form-actions .btn-primary{flex:1;justify-content:center}
+  .saved-note{font-size:12px;color:var(--text-3);margin-top:10px;display:flex;align-items:center;gap:6px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--success)}
+
+  /* Toolbar */
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;color:var(--text-2)}
+  .tab .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:var(--primary-soft);color:var(--primary-dark);font-size:12px}
+  .tab.active{background:var(--primary-soft);border-color:var(--primary);color:var(--primary-dark)}
+  .filters{display:flex;gap:8px;flex-wrap:wrap}
+  .filters input{width:220px}
+  .filters select{width:auto}
+
+  /* Cards */
+  .list{display:flex;flex-direction:column;gap:16px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;border-left:4px solid var(--primary)}
+  .card.v-vendedores{border-left-color:var(--orange)}
+  .card.v-logistica{border-left-color:var(--primary-dark)}
+  .card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .badges{display:flex;gap:6px;flex-wrap:wrap}
+  .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--primary-soft);color:var(--primary-dark)}
+  .badge.orange{background:var(--orange-soft);color:var(--warning)}
+  .badge.grey{background:var(--chip);color:var(--text-2)}
+  .status{font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;border:1px solid var(--border);background:var(--surface);cursor:pointer}
+  .st-pendiente{color:var(--warning);border-color:var(--ctx-border)}
+  .st-analisis{color:var(--info);border-color:var(--primary-soft-2)}
+  .st-resuelta{color:var(--success);border-color:var(--success)}
+  .st-descartada{color:var(--text-3)}
+  .card h3{font-size:18px;font-weight:600;margin:12px 0 10px;color:var(--text)}
+  .card .lbl{font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin:0 0 4px}
+  .card .desc{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;white-space:pre-wrap;font-size:15px;margin:0}
+  .card .desc.ctx{background:var(--orange-soft);border-color:var(--ctx-border)}
+  .card-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .meta{font-size:12px;color:var(--text-3)}
+  .icon-btn{background:none;border:1px solid transparent;border-radius:8px;padding:6px 8px;cursor:pointer;color:var(--text-2);display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+  .icon-btn svg{width:15px;height:15px}
+  .icon-btn:hover{border-color:var(--border);color:var(--primary-dark)}
+  .icon-btn.del:hover{color:var(--error)}
+  .empty{text-align:center;padding:48px 24px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-2);background:var(--surface)}
+  .empty b{display:block;color:var(--primary-dark);font-size:18px;margin-bottom:6px}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--toast);color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .2s;z-index:10}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .warn-storage{display:none;background:var(--orange-soft);color:var(--warning);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+
+  footer{border-top:1px solid var(--border);padding:24px 0;font-size:12px;color:var(--text-3);text-align:center;background:var(--surface)}
+
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr}
+    .sticky{position:static}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .hero h1{font-size:30px}
+    .filters input{width:100%}
+    .filters{width:100%}
+  }
+  @media (max-width:520px){
+    .hero-card{padding:28px 20px}
+    .top-actions .btn span{display:none}
+    .row2{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark"><span></span></div>
+      <div>Persat <small>Portal Comercial</small></div>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-ghost theme-btn" id="btnTheme" title="Cambiar modo claro / oscuro" aria-label="Cambiar modo claro / oscuro">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <span id="themeLabel">Modo oscuro</span>
+      </button>
+      <button class="btn btn-ghost" id="btnExport" title="Descargar respaldo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg><span>Exportar</span>
+      </button>
+      <button class="btn btn-ghost" id="btnImport" title="Cargar respaldo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 012-2h12a2 2 0 012 2v2"/></svg><span>Importar</span>
+      </button>
+      <input type="file" id="fileImport" accept="application/json" hidden>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-card">
+      <span class="eyebrow">Exclusivo área comercial</span>
+      <h1>Portal de <em>automatizaciones</em> para el servidor</h1>
+      <p>Centralizá las ideas de automatización que surgen en cada deal. Cargá la consulta, indicá la vertical y el tipo de negocio, y describí cómo te imaginás la solución.</p>
+      <div class="stats">
+        <div class="stat"><b id="sTotal">0</b><span>Consultas totales</span></div>
+        <div class="stat"><b id="sTec">0</b><span>Técnicos</span></div>
+        <div class="stat"><b id="sVen">0</b><span>Vendedores</span></div>
+        <div class="stat"><b id="sLog">0</b><span>Logística</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap grid">
+  <aside class="panel sticky">
+    <h2 id="formTitle">Nueva consulta</h2>
+    <p class="sub">Los campos con <span style="color:var(--orange)">*</span> son obligatorios.</p>
+    <form id="form" autocomplete="off">
+      <input type="hidden" id="editId">
+      <div class="field">
+        <label class="f">Vertical <span class="req">*</span></label>
+        <div class="seg">
+          <input type="radio" name="vertical" id="vTec" value="tecnicos" checked>
+          <label for="vTec"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.4-.6-.6-2.4 2.5-2.5z"/></svg>Técnicos</label>
+          <input type="radio" name="vertical" id="vVen" value="vendedores">
+          <label for="vVen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg>Vendedores</label>
+          <input type="radio" name="vertical" id="vLog" value="logistica">
+          <label for="vLog"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Logística</label>
+        </div>
+      </div>
+      <div class="field">
+        <label class="f" for="pregunta">Pregunta <span class="req">*</span></label>
+        <textarea id="pregunta" rows="3" placeholder="Ej.: ¿Podemos enviar automáticamente el remito al cliente cuando el chofer cierra la entrega?" required></textarea>
+      </div>
+      <div class="field">
+        <label class="f" for="tipoDeal">Tipo de deal <span class="req">*</span></label>
+        <textarea id="tipoDeal" rows="3" placeholder="Contexto del deal: rubro, qué hace la empresa, cómo opera y en qué etapa está. Ej.: distribuidora de bebidas con 12 choferes, reparte a almacenes del GBA; en prueba de valor." required></textarea>
+      </div>
+      <div class="field">
+        <label class="f" for="descripcion">Descripción de lo imaginado para este deal <span class="req">*</span></label>
+        <textarea id="descripcion" rows="5" placeholder="Disparador, qué datos intervienen, qué debería pasar y qué resultado espera el cliente." required></textarea>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="f" for="deal">Deal / cliente <span class="hint">(opcional)</span></label>
+          <input type="text" id="deal" placeholder="Nombre o link de HubSpot">
+        </div>
+        <div class="field">
+          <label class="f" for="autor">Quién hizo la pregunta <span class="req">*</span></label>
+          <select id="autor" required>
+            <option value="">Seleccionar…</option>
+            <option>Joel</option><option>Leo</option><option>Gian</option><option>Juanpa</option><option>Jero</option><option>Lucho</option><option>Hugo</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="btnSubmit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span id="submitLabel">Cargar consulta</span>
+        </button>
+        <button type="button" class="btn btn-ghost" id="btnCancel" hidden>Cancelar</button>
+      </div>
+      <div class="saved-note"><span class="dot"></span>Se guarda automáticamente en este navegador.</div>
+    </form>
+  </aside>
+
+  <section>
+    <div class="warn-storage" id="warnStorage">Este navegador no permite guardar datos locales. Usá "Exportar" antes de cerrar para no perder las consultas.</div>
+    <div class="toolbar">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-v="todas">Todas <span class="n" id="tTodas">0</span></button>
+        <button class="tab" data-v="tecnicos">Técnicos <span class="n" id="tTec">0</span></button>
+        <button class="tab" data-v="vendedores">Vendedores <span class="n" id="tVen">0</span></button>
+        <button class="tab" data-v="logistica">Logística <span class="n" id="tLog">0</span></button>
+      </div>
+      <div class="filters">
+        <input type="text" id="search" placeholder="Buscar en consultas…">
+        <select id="fEstado">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="analisis">En análisis</option>
+          <option value="resuelta">Resuelta</option>
+          <option value="descartada">Descartada</option>
+        </select>
+        <select id="fAutor">
+          <option value="">Todas las personas</option>
+          <option>Joel</option><option>Leo</option><option>Gian</option><option>Juanpa</option><option>Jero</option><option>Lucho</option><option>Hugo</option>
+        </select>
+      </div>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+</main>
+
+<footer>Persat · Portal interno del área comercial · Las consultas se guardan localmente en este navegador</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const KEY = 'persat_portal_automatizaciones_v1';
+  const DRAFT_KEY = KEY + '_draft';
+  const VERT = {tecnicos:'Técnicos', vendedores:'Vendedores', logistica:'Logística'};
+  const ESTADOS = ['pendiente','analisis','resuelta','descartada'];
+  const ESTADO_LBL = {pendiente:'Pendiente', analisis:'En análisis', resuelta:'Resuelta', descartada:'Descartada'};
+
+  let storageOk = true;
+  let items = [];
+  let filtroV = 'todas';
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function load(){
+    try { items = JSON.parse(localStorage.getItem(KEY) || '[]'); if(!Array.isArray(items)) items = []; }
+    catch(e){ storageOk = false; items = []; }
+  }
+  function save(){
+    try { localStorage.setItem(KEY, JSON.stringify(items)); }
+    catch(e){ storageOk = false; $('warnStorage').style.display = 'block'; }
+  }
+  function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+  function fmt(ts){ const d=new Date(ts); return d.toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+  // Borrador del formulario
+  const draftFields = ['pregunta','tipoDeal','descripcion','deal','autor'];
+  function saveDraft(){
+    if($('editId').value) return;
+    const d = {vertical: document.querySelector('input[name=vertical]:checked').value};
+    draftFields.forEach(f => d[f] = $(f).value);
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch(e){}
+  }
+  function loadDraft(){
+    try {
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); if(!d) return;
+      draftFields.forEach(f => { if(d[f] != null) $(f).value = d[f]; });
+      const r = document.querySelector('input[name=vertical][value="'+d.vertical+'"]'); if(r) r.checked = true;
+    } catch(e){}
+  }
+  function clearDraft(){ try { localStorage.removeItem(DRAFT_KEY); } catch(e){} }
+
+  function counts(){
+    const c = {tecnicos:0, vendedores:0, logistica:0};
+    items.forEach(i => { if(c[i.vertical] != null) c[i.vertical]++; });
+    $('sTotal').textContent = $('tTodas').textContent = items.length;
+    $('sTec').textContent = $('tTec').textContent = c.tecnicos;
+    $('sVen').textContent = $('tVen').textContent = c.vendedores;
+    $('sLog').textContent = $('tLog').textContent = c.logistica;
+  }
+
+  function render(){
+    counts();
+    const q = $('search').value.trim().toLowerCase();
+    const est = $('fEstado').value;
+    const aut = $('fAutor').value;
+    const list = items
+      .filter(i => filtroV === 'todas' || i.vertical === filtroV)
+      .filter(i => !est || i.estado === est)
+      .filter(i => !aut || i.autor === aut)
+      .filter(i => !q || [i.pregunta,i.descripcion,i.tipoDeal,i.deal,i.autor].join(' ').toLowerCase().includes(q))
+      .sort((a,b) => b.creado - a.creado);
+
+    if(!list.length){
+      $('list').innerHTML = items.length
+        ? '<div class="empty"><b>Sin resultados</b>Probá con otra vertical, estado o búsqueda.</div>'
+        : '<div class="empty"><b>Todavía no hay consultas</b>Cargá la primera desde el formulario.</div>';
+      return;
+    }
+    $('list').innerHTML = list.map(i => `
+      <article class="card v-${esc(i.vertical)}">
+        <div class="card-head">
+          <div class="badges">
+            <span class="badge">${esc(VERT[i.vertical]||i.vertical)}</span>
+            ${i.deal ? `<span class="badge grey">${esc(i.deal)}</span>` : ''}
+          </div>
+          <button class="status st-${esc(i.estado)}" data-act="estado" data-id="${esc(i.id)}" title="Cambiar estado">${esc(ESTADO_LBL[i.estado]||'Pendiente')}</button>
+        </div>
+        <h3>${esc(i.pregunta)}</h3>
+        <p class="lbl">Tipo de deal</p>
+        <p class="desc ctx">${esc(i.tipoDeal)}</p>
+        <p class="lbl" style="margin-top:12px">Lo imaginado para este deal</p>
+        <p class="desc">${esc(i.descripcion)}</p>
+        <div class="card-foot">
+          <span class="meta">${i.autor ? esc(i.autor)+' · ' : ''}${fmt(i.creado)}${i.editado ? ' · editada' : ''}</span>
+          <div>
+            <button class="icon-btn" data-act="copiar" data-id="${esc(i.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copiar</button>
+            <button class="icon-btn" data-act="editar" data-id="${esc(i.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>Editar</button>
+            <button class="icon-btn del" data-act="borrar" data-id="${esc(i.id)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>Eliminar</button>
+          </div>
+        </div>
+      </article>`).join('');
+  }
+
+  function resetForm(){
+    $('form').reset(); $('editId').value = '';
+    $('formTitle').textContent = 'Nueva consulta';
+    $('submitLabel').textContent = 'Cargar consulta';
+    $('btnCancel').hidden = true;
+    clearDraft();
+  }
+
+  $('form').addEventListener('submit', e => {
+    e.preventDefault();
+    const data = {
+      vertical: document.querySelector('input[name=vertical]:checked').value,
+      pregunta: $('pregunta').value.trim(),
+      tipoDeal: $('tipoDeal').value,
+      descripcion: $('descripcion').value.trim(),
+      deal: $('deal').value.trim(),
+      autor: $('autor').value.trim()
+    };
+    if(!data.pregunta || !data.tipoDeal || !data.descripcion || !data.autor){ toast('Completá los campos obligatorios'); return; }
+    const id = $('editId').value;
+    if(id){
+      const it = items.find(x => x.id === id);
+      if(it){ Object.assign(it, data, {editado: Date.now()}); }
+      toast('Consulta actualizada');
+    } else {
+      items.push(Object.assign({id: uid(), estado:'pendiente', creado: Date.now()}, data));
+      toast('Consulta cargada');
+    }
+    const autor = data.autor;
+    save(); resetForm();
+    $('autor').value = autor; // recordar el nombre para la próxima carga
+    render();
+  });
+
+  $('btnCancel').addEventListener('click', resetForm);
+  $('form').addEventListener('input', saveDraft);
+  $('form').addEventListener('change', saveDraft);
+
+  $('list').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if(!b) return;
+    const it = items.find(x => x.id === b.dataset.id); if(!it) return;
+    const act = b.dataset.act;
+    if(act === 'estado'){
+      it.estado = ESTADOS[(ESTADOS.indexOf(it.estado)+1) % ESTADOS.length];
+      save(); render();
+    } else if(act === 'borrar'){
+      if(confirm('¿Eliminar esta consulta? Esta acción no se puede deshacer.')){
+        items = items.filter(x => x.id !== it.id); save(); render(); toast('Consulta eliminada');
+      }
+    } else if(act === 'editar'){
+      $('editId').value = it.id;
+      document.querySelector('input[name=vertical][value="'+it.vertical+'"]').checked = true;
+      ['pregunta','tipoDeal','descripcion','deal','autor'].forEach(f => $(f).value = it[f] || '');
+      $('formTitle').textContent = 'Editar consulta';
+      $('submitLabel').textContent = 'Guardar cambios';
+      $('btnCancel').hidden = false;
+      $('pregunta').focus();
+      window.scrollTo({top: $('form').getBoundingClientRect().top + window.scrollY - 100, behavior:'smooth'});
+    } else if(act === 'copiar'){
+      const txt = `Vertical: ${VERT[it.vertical]}\nTipo de deal: ${it.tipoDeal}${it.deal?'\nDeal: '+it.deal:''}\n\nPregunta:\n${it.pregunta}\n\nLo imaginado para este deal:\n${it.descripcion}${it.autor?'\n\nSolicitado por: '+it.autor:''}`;
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+        .then(() => toast('Consulta copiada'))
+        .catch(() => toast('No se pudo copiar'));
+    }
+  });
+
+  $('tabs').addEventListener('click', e => {
+    const t = e.target.closest('.tab'); if(!t) return;
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active'); filtroV = t.dataset.v; render();
+  });
+  $('search').addEventListener('input', render);
+  $('fEstado').addEventListener('change', render);
+  $('fAutor').addEventListener('change', render);
+
+  // Modo oscuro
+  const THEME_KEY = KEY + '_theme';
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    $('themeLabel').textContent = t === 'dark' ? 'Modo claro' : 'Modo oscuro';
+  }
+  let theme = null;
+  try { theme = localStorage.getItem(THEME_KEY); } catch(e){}
+  if(theme !== 'dark' && theme !== 'light'){
+    theme = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  applyTheme(theme);
+  $('btnTheme').addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch(e){}
+  });
+
+  // Exportar / importar respaldo
+  $('btnExport').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({exportado: new Date().toISOString(), consultas: items}, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'consultas-automatizaciones-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click(); URL.revokeObjectURL(a.href);
+    toast('Respaldo descargado');
+  });
+  $('btnImport').addEventListener('click', () => $('fileImport').click());
+  $('fileImport').addEventListener('change', e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const data = JSON.parse(r.result);
+        const nuevos = Array.isArray(data) ? data : data.consultas;
+        if(!Array.isArray(nuevos)) throw 0;
+        const ids = new Set(items.map(i => i.id));
+        let n = 0;
+        nuevos.forEach(i => { if(i && i.id && i.pregunta && !ids.has(i.id)){ items.push(i); n++; } });
+        save(); render(); toast(n + ' consultas importadas');
+      } catch(err){ toast('El archivo no tiene un formato válido'); }
+      e.target.value = '';
+    };
+    r.readAsText(f);
+  });
+
+  load();
+  if(!storageOk) $('warnStorage').style.display = 'block';
+  loadDraft();
+  render();
+})();
+</script>
+</body>
+</html>

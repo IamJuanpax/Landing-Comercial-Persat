@@ -77,14 +77,11 @@ export default function PortalAutomatizaciones({
   const [mounted, setMounted] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [shareItem, setShareItem] = useState<Consulta | null>(null);
 
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const preguntaRef = useRef<HTMLTextAreaElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -143,15 +140,7 @@ export default function PortalAutomatizaciones({
       // Ignorar errores de borrador
     }
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
       if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
       }
@@ -425,65 +414,6 @@ export default function PortalAutomatizaciones({
     }
   };
 
-  const handleExport = () => {
-    const blob = new Blob(
-      [
-        JSON.stringify(
-          { exportado: new Date().toISOString(), consultas: items },
-          null,
-          2
-        ),
-      ],
-      { type: 'application/json' }
-    );
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download =
-      'consultas-automatizaciones-' +
-      new Date().toISOString().slice(0, 10) +
-      '.json';
-    a.click();
-    URL.revokeObjectURL(a.href);
-    showToast('Respaldo descargado');
-  };
-
-  const handleImportFile = async (file: File | undefined) => {
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text) as unknown;
-
-      const res = await fetch('/api/consultas/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed),
-      });
-      const data = (await res.json()) as {
-        imported?: number;
-        consultas?: Consulta[];
-        error?: string;
-        configured?: boolean;
-      };
-
-      if (!res.ok) {
-        if (data.configured === false) setDbConfigured(false);
-        showToast(data.error || 'El archivo no tiene un formato válido');
-        return;
-      }
-
-      if (data.consultas && data.consultas.length > 0) {
-        setItems((prev) => [...data.consultas!, ...prev]);
-      }
-      showToast(`${data.imported ?? 0} consultas importadas`);
-    } catch {
-      showToast('El archivo no tiene un formato válido');
-    } finally {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
   return (
     <>
       <header className="top">
@@ -531,95 +461,6 @@ export default function PortalAutomatizaciones({
               </svg>
               <span>{theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}</span>
             </button>
-
-            {/* Menú desplegable para Respaldo (Exportar / Importar) */}
-            <div className="dropdown-wrap" ref={menuRef}>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => setMenuOpen(!menuOpen)}
-                title="Gestión de datos y respaldo"
-                aria-expanded={menuOpen}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <ellipse cx="12" cy="5" rx="9" ry="3" />
-                  <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-                  <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-                </svg>
-                <span>Respaldo</span>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ width: 12, height: 12, marginLeft: -2 }}
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </button>
-
-              {menuOpen && (
-                <div className="dropdown-menu">
-                  <button
-                    type="button"
-                    className="dropdown-item"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      handleExport();
-                    }}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                    </svg>
-                    Exportar JSON
-                  </button>
-                  <button
-                    type="button"
-                    className="dropdown-item"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      fileInputRef.current?.click();
-                    }}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 012-2h12a2 2 0 012 2v2" />
-                    </svg>
-                    Importar JSON
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/json"
-              hidden
-              onChange={(e) => handleImportFile(e.target.files?.[0])}
-            />
           </div>
         </div>
       </header>

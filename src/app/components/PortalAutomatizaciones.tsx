@@ -64,6 +64,19 @@ export default function PortalAutomatizaciones({
   const [dbConfigured, setDbConfigured] = useState<boolean>(initialConfigured);
   const [dbError, setDbError] = useState<string | null>(initialError);
 
+  // Sincronizar el estado cuando initialConsultas cambie (ej. al cargar desde la API)
+  useEffect(() => {
+    setItems(initialConsultas);
+  }, [initialConsultas]);
+
+  useEffect(() => {
+    setDbConfigured(initialConfigured);
+  }, [initialConfigured]);
+
+  useEffect(() => {
+    setDbError(initialError);
+  }, [initialError]);
+
   const [form, setForm] = useState<DraftState>(EMPTY_FORM);
   const [editId, setEditId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

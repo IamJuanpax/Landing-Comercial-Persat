@@ -6,7 +6,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
  * NEXT_PUBLIC_SUPABASE_ANON_KEY.
  */
 export function getSupabaseConfig(): { url: string; key: string } | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  let url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const key =
     process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
@@ -14,6 +14,9 @@ export function getSupabaseConfig(): { url: string; key: string } | null {
   if (!url || !key) {
     return null;
   }
+
+  // Si se pegó la URL con `/rest/v1` o `/rest/v1/`, la saneamos a la raíz del proyecto
+  url = url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
 
   return { url, key };
 }

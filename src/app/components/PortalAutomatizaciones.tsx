@@ -7,6 +7,7 @@ import {
   ESTADOS,
   VERTICAL_LABEL,
   type Consulta,
+  type EstadoConsulta,
   type Vertical,
 } from '@/types/consulta';
 
@@ -76,11 +77,13 @@ export default function PortalAutomatizaciones({
   const [mounted, setMounted] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const preguntaRef = useRef<HTMLTextAreaElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -139,7 +142,15 @@ export default function PortalAutomatizaciones({
       // Ignorar errores de borrador
     }
 
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
     return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
       if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
       }
@@ -286,8 +297,8 @@ export default function PortalAutomatizaciones({
     }
   };
 
-  const handleCycleEstado = async (item: Consulta) => {
-    const nextEstado = ESTADOS[(ESTADOS.indexOf(item.estado) + 1) % ESTADOS.length];
+  const handleUpdateEstado = async (item: Consulta, nextEstado: EstadoConsulta) => {
+    if (item.estado === nextEstado) return;
     const previousEstado = item.estado;
 
     // Actualización optimista
@@ -321,6 +332,7 @@ export default function PortalAutomatizaciones({
       setItems((prev) =>
         prev.map((x) => (x.id === item.id ? data.consulta! : x))
       );
+      showToast(`Estado: ${ESTADO_LABEL[nextEstado]}`);
     } catch {
       setItems((prev) =>
         prev.map((x) =>
@@ -329,6 +341,16 @@ export default function PortalAutomatizaciones({
       );
       showToast('Error de conexión con el servidor');
     }
+  };
+
+  const handleShareGmail = (item: Consulta) => {
+    const subject = encodeURIComponent(
+      `[Persat Automatizaciones] ${item.pregunta.slice(0, 50)}${item.pregunta.length > 50 ? '...' : ''}`
+    );
+    const bodyText = `Hola equipo,\n\nLes comparto la consulta de automatización registrada en el portal:\n\n• Vertical: ${VERTICAL_LABEL[item.vertical]}\n• Tipo de Deal / Contexto: ${item.tipoDeal}${item.deal ? '\n• Deal / Cliente: ' + item.deal : ''}\n• Solicitado por: ${item.autor || 'Sin especificar'}\n• Estado actual: ${ESTADO_LABEL[item.estado]}\n\nPREGUNTA:\n${item.pregunta}\n\nDESCRIPCIÓN DE LO IMAGINADO:\n${item.descripcion}\n\n---\nEnviado desde el Portal de Automatizaciones · Persat`;
+    
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${encodeURIComponent(bodyText)}`;
+    window.open(gmailUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleDelete = async (item: Consulta) => {
@@ -460,9 +482,11 @@ export default function PortalAutomatizaciones({
       <header className="top">
         <div className="wrap">
           <div className="brand">
-            <div className="brand-mark">
-              <span></span>
-            </div>
+            <img
+              src="/persat-logo.png"
+              alt="Persat IA"
+              className="brand-logo"
+            />
             <div>
               Persat <small>Portal Comercial</small>
             </div>
@@ -501,43 +525,86 @@ export default function PortalAutomatizaciones({
               <span>{theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}</span>
             </button>
 
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={handleExport}
-              title="Descargar respaldo"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            {/* Menú desplegable para Respaldo (Exportar / Importar) */}
+            <div className="dropdown-wrap" ref={menuRef}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setMenuOpen(!menuOpen)}
+                title="Gestión de datos y respaldo"
+                aria-expanded={menuOpen}
               >
-                <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-              </svg>
-              <span>Exportar</span>
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <ellipse cx="12" cy="5" rx="9" ry="3" />
+                  <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                  <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                </svg>
+                <span>Respaldo</span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ width: 12, height: 12, marginLeft: -2 }}
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
 
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => fileInputRef.current?.click()}
-              title="Cargar respaldo"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 012-2h12a2 2 0 012 2v2" />
-              </svg>
-              <span>Importar</span>
-            </button>
+              {menuOpen && (
+                <div className="dropdown-menu">
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleExport();
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                    </svg>
+                    Exportar JSON
+                  </button>
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 012-2h12a2 2 0 012 2v2" />
+                    </svg>
+                    Importar JSON
+                  </button>
+                </div>
+              )}
+            </div>
 
             <input
               ref={fileInputRef}
@@ -925,14 +992,35 @@ export default function PortalAutomatizaciones({
                         <span className="badge grey">{item.deal}</span>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      className={`status st-${item.estado}`}
-                      onClick={() => handleCycleEstado(item)}
-                      title="Cambiar estado"
-                    >
-                      {ESTADO_LABEL[item.estado] || 'Pendiente'}
-                    </button>
+                    
+                    {/* Lista desplegable para el estado */}
+                    <div className="status-select-wrap">
+                      <select
+                        className={`status-select st-${item.estado}`}
+                        value={item.estado}
+                        onChange={(e) =>
+                          handleUpdateEstado(item, e.target.value as EstadoConsulta)
+                        }
+                        title="Cambiar estado de la consulta"
+                      >
+                        {ESTADOS.map((st) => (
+                          <option key={st} value={st}>
+                            {ESTADO_LABEL[st]}
+                          </option>
+                        ))}
+                      </select>
+                      <svg
+                        className="status-select-arrow"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </div>
                   </div>
 
                   <h3>{item.pregunta}</h3>
@@ -952,6 +1040,26 @@ export default function PortalAutomatizaciones({
                       {item.editado ? ' · editada' : ''}
                     </span>
                     <div className="card-actions">
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        onClick={() => handleShareGmail(item)}
+                        title="Enviar resumen por Gmail"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                          <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        Gmail
+                      </button>
+
                       <button
                         type="button"
                         className="icon-btn"

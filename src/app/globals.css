@@ -91,9 +91,21 @@ header.top .wrap{
   align-items:center;
   gap:12px;
   font-weight:700;
-  color:var(--primary-dark);
+  color:var(--text);
   font-size:18px;
   letter-spacing:-0.02em;
+}
+.brand-logo{
+  height:38px;
+  width:auto;
+  max-width:140px;
+  object-fit:contain;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  transition:transform .2s ease;
+}
+.brand:hover .brand-logo{
+  transform:scale(1.04);
 }
 .brand-mark{
   width:36px;
@@ -594,6 +606,88 @@ input:focus,select:focus,textarea:focus{
   color:var(--text-2);
   border:1px solid var(--border);
 }
+/* Dropdown de gestión (Backup / Importar / Exportar) */
+.dropdown-wrap{
+  position:relative;
+}
+.dropdown-menu{
+  position:absolute;
+  top:calc(100% + 8px);
+  right:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-lg);
+  min-width:180px;
+  padding:6px;
+  z-index:40;
+  animation:fadeSlideIn .18s ease-out;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.dropdown-item{
+  background:none;
+  border:none;
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text);
+  border-radius:6px;
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:left;
+}
+.dropdown-item svg{
+  width:15px;
+  height:15px;
+  color:var(--text-2);
+}
+.dropdown-item:hover{
+  background:var(--primary-soft);
+  color:var(--primary);
+}
+.dropdown-item:hover svg{
+  color:var(--primary);
+}
+
+.status-select-wrap{
+  position:relative;
+  display:inline-block;
+}
+.status-select{
+  appearance:none;
+  -webkit-appearance:none;
+  font-size:12px;
+  font-weight:600;
+  border-radius:var(--radius-full);
+  padding:5px 28px 5px 12px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  cursor:pointer;
+  transition:all .18s ease;
+  user-select:none;
+  outline:none;
+}
+.status-select:focus{
+  box-shadow:0 0 0 3px rgba(86,88,210,0.2);
+}
+.status-select-arrow{
+  position:absolute;
+  right:9px;
+  top:50%;
+  transform:translateY(-50%);
+  pointer-events:none;
+  width:12px;
+  height:12px;
+  color:currentColor;
+  opacity:0.7;
+}
+
 .status{
   font-size:12px;
   font-weight:600;

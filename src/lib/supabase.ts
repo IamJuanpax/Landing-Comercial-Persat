@@ -6,10 +6,15 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
  * NEXT_PUBLIC_SUPABASE_ANON_KEY.
  */
 export function getSupabaseConfig(): { url: string; key: string } | null {
-  let url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  // Soporta tanto los nombres estándar como los que inyecta automáticamente la integración de Vercel + Supabase
+  let url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
+    process.env.SUPABASE_URL?.trim();
+
   const key =
     process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
+    process.env.SUPABASE_ANON_KEY?.trim();
 
   if (!url || !key) {
     return null;

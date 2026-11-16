@@ -826,6 +826,106 @@ input:focus,select:focus,textarea:focus{
   font-weight:700;
 }
 
+/* Modal flotante (Compartir / Copiar para Gmail) */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(10, 12, 24, 0.65);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  display:grid;
+  place-items:center;
+  z-index:100;
+  padding:20px;
+  animation:modalFade .2s ease-out;
+}
+@keyframes modalFade{
+  from{opacity:0}
+  to{opacity:1}
+}
+.modal-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);
+  max-width:560px;
+  width:100%;
+  padding:26px 28px;
+  animation:modalScale .22s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height:90vh;
+  display:flex;
+  flex-direction:column;
+}
+@keyframes modalScale{
+  from{opacity:0;transform:scale(0.95) translateY(10px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.modal-head h3{
+  font-size:18px;
+  font-weight:700;
+  margin:0;
+  color:var(--text);
+  letter-spacing:-0.02em;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.modal-head h3 svg{
+  color:var(--primary);
+  width:20px;
+  height:20px;
+}
+.modal-close{
+  background:none;
+  border:none;
+  font-size:22px;
+  line-height:1;
+  color:var(--text-3);
+  cursor:pointer;
+  padding:4px 8px;
+  border-radius:6px;
+  transition:all .15s ease;
+}
+.modal-close:hover{
+  background:var(--surface-subtle);
+  color:var(--text);
+}
+.modal-sub{
+  font-size:13.5px;
+  color:var(--text-2);
+  margin:0 0 16px;
+}
+.modal-textarea{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px 14px;
+  background:var(--surface-subtle);
+  font-size:13.5px;
+  line-height:1.6;
+  resize:vertical;
+  min-height:180px;
+  color:var(--text);
+  outline:none;
+  margin-bottom:18px;
+}
+.modal-textarea:focus{
+  border-color:var(--primary);
+  background:var(--surface);
+}
+.modal-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
 /* Toast */
 .toast{
   position:fixed;

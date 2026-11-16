@@ -78,6 +78,7 @@ export default function PortalAutomatizaciones({
   const [toastMsg, setToastMsg] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shareItem, setShareItem] = useState<Consulta | null>(null);
 
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -343,14 +344,20 @@ export default function PortalAutomatizaciones({
     }
   };
 
-  const handleShareGmail = (item: Consulta) => {
-    const subject = encodeURIComponent(
-      `[Persat Automatizaciones] ${item.pregunta.slice(0, 50)}${item.pregunta.length > 50 ? '...' : ''}`
-    );
-    const bodyText = `Hola equipo,\n\nLes comparto la consulta de automatización registrada en el portal:\n\n• Vertical: ${VERTICAL_LABEL[item.vertical]}\n• Tipo de Deal / Contexto: ${item.tipoDeal}${item.deal ? '\n• Deal / Cliente: ' + item.deal : ''}\n• Solicitado por: ${item.autor || 'Sin especificar'}\n• Estado actual: ${ESTADO_LABEL[item.estado]}\n\nPREGUNTA:\n${item.pregunta}\n\nDESCRIPCIÓN DE LO IMAGINADO:\n${item.descripcion}\n\n---\nEnviado desde el Portal de Automatizaciones · Persat`;
-    
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${encodeURIComponent(bodyText)}`;
-    window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+  const getShareText = (item: Consulta) => {
+    return `Hola equipo,\n\nLes comparto la consulta de automatización registrada en el portal:\n\n• Vertical: ${VERTICAL_LABEL[item.vertical]}\n• Tipo de Deal / Contexto: ${item.tipoDeal}${item.deal ? '\n• Deal / Cliente: ' + item.deal : ''}\n• Solicitado por: ${item.autor || 'Sin especificar'}\n• Estado actual: ${ESTADO_LABEL[item.estado]}\n\nPREGUNTA:\n${item.pregunta}\n\nDESCRIPCIÓN DE LO IMAGINADO:\n${item.descripcion}\n\n---\nPortal de Automatizaciones · Persat`;
+  };
+
+  const handleCopyModalText = async (text: string) => {
+    try {
+      if (!navigator.clipboard) {
+        throw new Error('Clipboard no disponible');
+      }
+      await navigator.clipboard.writeText(text);
+      showToast('¡Texto copiado para Gmail!');
+    } catch {
+      showToast('No se pudo copiar');
+    }
   };
 
   const handleDelete = async (item: Consulta) => {
@@ -1043,8 +1050,8 @@ export default function PortalAutomatizaciones({
                       <button
                         type="button"
                         className="icon-btn"
-                        onClick={() => handleShareGmail(item)}
-                        title="Enviar resumen por Gmail"
+                        onClick={() => setShareItem(item)}
+                        title="Ver y copiar texto para enviar por Gmail"
                       >
                         <svg
                           viewBox="0 0 24 24"
@@ -1127,6 +1134,86 @@ export default function PortalAutomatizaciones({
         Persat · Portal interno del área comercial · Consultas almacenadas en
         Supabase
       </footer>
+
+      {/* Modal para copiar texto y compartir en Gmail */}
+      {shareItem && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setShareItem(null)}
+        >
+          <div
+            className="modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-head">
+              <h3>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                Compartir por Gmail
+              </h3>
+              <button
+                type="button"
+                className="modal-close"
+                onClick={() => setShareItem(null)}
+                aria-label="Cerrar modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="modal-sub">
+              Copiá este mensaje preformateado para pegarlo directamente en tu correo de Gmail:
+            </p>
+
+            <textarea
+              className="modal-textarea"
+              readOnly
+              rows={9}
+              value={getShareText(shareItem)}
+              onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+            />
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setShareItem(null)}
+              >
+                Cerrar
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  handleCopyModalText(getShareText(shareItem));
+                }}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copiar texto
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={`toast${toastVisible ? ' show' : ''}`}>{toastMsg}</div>
     </>
